@@ -1,56 +1,29 @@
- import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+const handleSend = async () => {
+  if (!input.trim()) return;
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  const userMessage = { role: 'user', content: input };
+  setMessages((prev) => [...prev, userMessage]);
+  setInput('');
 
   try {
-    const { messages } = await req.json()
-
-    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY")
-    
-    if (!GROQ_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "API Key missing in Supabase Secrets" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      )
-    }
-
     const response = await fetch('https://wcrotshohsumzdzmcugx.supabase.co/functions/v1/chat', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    messages: [...messages, { role: 'user', content: input }],
-  }),
-}); {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: messages,
+        messages: [...messages, userMessage],
       }),
-    })
+    });
 
-    const data = await response.json()
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
-
+    const data = await response.json();
+    
+    // AI ka reply nikalne ke liye
+    const aiReply = data.choices[0].message.content;
+    
+    setMessages((prev) => [...prev, { role: 'assistant', content: aiReply }]);
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
+    console.error("Error:", error);
+    setMessages((prev) => [...prev, { role: 'assistant', content: "Pohor, connection mein error hai. Supabase check karein!" }]);
   }
-})
+};
