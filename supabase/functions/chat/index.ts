@@ -22,7 +22,7 @@ serve(async (req) => {
       )
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch('https://wcrotshohsumzdzmcugx.supabase.co/functions/v1/chat', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
