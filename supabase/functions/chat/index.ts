@@ -1,29 +1,23 @@
-const handleSend = async () => {
-  if (!input.trim()) return;
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
-  const userMessage = { role: 'user', content: input };
-  setMessages((prev) => [...prev, userMessage]);
-  setInput('');
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
+serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
-    const response = await fetch('https://wcrotshohsumzdzmcugx.supabase.co/functions/v1/chat', {
+    const { messages } = await req.json()
+    const apiKey = Deno.env.get('GROQ_API_KEY')
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messages: [...messages, userMessage],
-      }),
-    });
-
-    const data = await response.json();
-    
-    // AI ka reply nikalne ke liye
-    const aiReply = data.choices[0].message.content;
-    
-    setMessages((prev) => [...prev, { role: 'assistant', content: aiReply }]);
-  } catch (error) {
-    console.error("Error:", error);
-    setMessages((prev) => [...prev, { role: 'assistant', content: "Pohor, connection mein error hai. Supabase check karein!" }]);
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages }),
+    })
+    const data = await response.json()
+    return new Response(JSON.stringify(data), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e.message }), { headers: corsHeaders, status: 400 })
   }
-};
+})
