@@ -1,0 +1,18 @@
+export const Colors = {
+  bg: '#0a0a0a',
+  bgSecondary: '#141414',
+  bgTertiary: '#1e1e1e',
+  border: '#2a2a2a',
+  text: '#f0f0f0',
+  textSecondary: '#a0a0a0',
+  textMuted: '#666666',
+  primary: '#10b981',
+  primaryMuted: 'rgba(16, 185, 129, 0.15)',
+  error: '#ef4444',
+  errorMuted: 'rgba(239, 68, 68, 0.15)',
+  inputBg: '#1a1a1a',
+  sidebarBg: '#111111',
+  userBubble: '#10b981',
+  aiBubble: '#1e1e1e',
+  overlay: 'rgba(0, 0, 0, 0.6)',
+};
