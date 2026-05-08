@@ -23,6 +23,14 @@ serve(async (req) => {
     }
 
     const response = await fetch('https://wcrotshohsumzdzmcugx.supabase.co/functions/v1/chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    messages: [...messages, { role: 'user', content: input }],
+  }),
+}); {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
