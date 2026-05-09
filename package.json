@@ -2,40 +2,44 @@
 import React, { useState } from 'react';
 
 export default function Page() {
-  const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<any[]>([]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
-    const userMsg = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMsg]);
+    if (!input) return;
+    const msg = { role: 'user', content: input };
+    setMessages([...messages, msg]);
     setInput('');
 
     try {
       const res = await fetch('https://wcrotshohsumzdzmcugx.supabase.co/functions/v1/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMsg] })
+        body: JSON.stringify({ messages: [...messages, msg] })
       });
       const data = await res.json();
-      if (data.choices) {
+      if (data && data.choices) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.choices[0].message.content }]);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>Penguin AI 🐧</h1>
-      <div style={{ border: '1px solid #ccc', height: '300px', overflowY: 'scroll', padding: '10px', marginBottom: '10px' }}>
+    <div style={{ padding: '20px' }}>
+      <h1>Penguin AI</h1>
+      <input 
+        value={input} 
+        onChange={(e) => setInput(e.target.value)} 
+        placeholder="Type here..."
+      />
+      <button onClick={handleSend}>Send</button>
+      <div style={{ marginTop: '20px' }}>
         {messages.map((m, i) => (
           <p key={i}><strong>{m.role}:</strong> {m.content}</p>
         ))}
       </div>
-      <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Say hi..." />
-      <button onClick={handleSend}>Send</button>
     </div>
   );
 }
